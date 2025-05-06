@@ -1,26 +1,78 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --transition-duration: 0.3s;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --background: #121212;
+  --foreground: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Apply base styles to root elements only */
+html {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Remove the global dark mode override */
+/* .dark * {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+} */
+
+/* Keep the specific dark mode styles for non-MUI elements */
+.dark body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Add specific dark mode styles for elements that need it */
+.dark .non-mui-element {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Base transitions */
+html, body {
+  transition: background-color var(--transition-duration) var(--transition-timing),
+              color var(--transition-duration) var(--transition-timing) !important;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Reset transitions for specific elements that might have their own */
+div, section, article, main, nav, header, footer, aside {
+  transition: background-color var(--transition-duration) var(--transition-timing),
+              color var(--transition-duration) var(--transition-timing) !important;
+}
+
+/* Theme toggle button styles */
+button[aria-label="Toggle theme"] {
+  transition: transform 0.2s var(--transition-timing),
+              background-color var(--transition-duration) var(--transition-timing) !important;
+}
+
+button[aria-label="Toggle theme"]:hover {
+  transform: scale(1.1);
+}
+
+/* MUI specific styles */
+.MuiDrawer-paper {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+.MuiPaper-root {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
 }

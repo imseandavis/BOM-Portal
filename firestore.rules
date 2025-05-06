@@ -1,0 +1,69 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        request.auth.token.role == 'admin';
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Content approvals collection
+    match /content-approvals/{approvalId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && 
+        request.resource.data.createdBy == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAdmin() || isOwner(userId);
+      allow delete: if isAdmin();
+    }
+
+    // Business profiles collection
+    match /business-profiles/{profileId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
+    // Domains collection
+    match /domains/{domainId} {
+      allow read: if isAdmin() || request.auth.uid == resource.data.userId;
+      allow write: if isAdmin() || request.auth.uid == request.resource.data.userId;
+    }
+
+    // Web-hosting collection
+    match /web-hosting/{hostingId} {
+      allow read: if isAdmin() || request.auth.uid == resource.data.userId;
+      allow write: if isAdmin() || request.auth.uid == request.resource.data.userId;
+    }
+
+    // Yelp leads collection
+    match /yelp-leads/{leadId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+} 
